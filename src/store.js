@@ -15,7 +15,10 @@ export const useStore = defineStore('store', {
     "tag": "div",
     "children": "b",
     "data": {
-      "key": 2
+      "key": 2,
+      "style":{
+        "color":"red"
+      }
     }
   },
   {

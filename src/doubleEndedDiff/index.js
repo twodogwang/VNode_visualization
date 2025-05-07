@@ -1,22 +1,26 @@
 let callbacks = {}
 let time = 3000
 
+export let resolve
+
+export let timer
+
 /**
  * javascript comment
  * @Author: 王林25
  * @Date: 2022-10-26 09:55:20
  * @Desc: 等待函数
  */
-const wait = t => {
-  return new Promise(resolve => {
-    setTimeout(
-      () => {
-        resolve()
-      },
-      t === undefined ? time : t
-    )
-  })
-}
+const wait = t => new Promise(res => {
+  resolve = res
+  timer = window.setTimeout(
+    () => {
+      res()
+    },
+    t ?? time
+  )
+})
+
 
 /**
  * javascript comment
@@ -134,6 +138,7 @@ const diff = async (el, oldChildren, newChildren) => {
     if (!stop) {
       callbacks.updateInfo('头-头比较')
       callbacks.updateCompareNodes(oldStartIdx, newStartIdx)
+      await wait()
       _isSameNode = isSameNode(oldStartVNode, newStartVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
@@ -151,8 +156,29 @@ const diff = async (el, oldChildren, newChildren) => {
       stop = true
     }
     if (!stop) {
+      callbacks.updateInfo('尾-尾比较')
+      callbacks.updateCompareNodes(oldEndIdx, newEndIdx)
+      await wait()
+      _isSameNode = isSameNode(oldEndVNode, newEndVNode)
+      if (_isSameNode) {
+        callbacks.updateInfo(
+          'key值相同，可以复用，进行patch打补丁操作。新旧节点位置相同，不需要移动对应的真实DOM节点'
+        )
+      }
+      await wait()
+    }
+    if (!stop && _isSameNode) {
+      // 尾-尾
+      patchVNode(oldEndVNode, newEndVNode)
+      // 更新指针
+      oldEndVNode = oldChildren[--oldEndIdx]
+      newEndVNode = newChildren[--newEndIdx]
+      stop = true
+    }
+    if (!stop) {
       callbacks.updateInfo('头-尾比较')
       callbacks.updateCompareNodes(oldStartIdx, newEndIdx)
+      await wait()
       _isSameNode = isSameNode(oldStartVNode, newEndVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
@@ -164,6 +190,7 @@ const diff = async (el, oldChildren, newChildren) => {
     if (!stop && _isSameNode) {
       // 头-尾
       patchVNode(oldStartVNode, newEndVNode)
+      debugger
       // 把oldStartVNode节点移动到最后
       el.insertBefore(oldStartVNode.el, oldEndVNode.el.nextSibling)
       callbacks.moveNode(oldStartIdx, oldEndIdx + 1)
@@ -175,6 +202,7 @@ const diff = async (el, oldChildren, newChildren) => {
     if (!stop) {
       callbacks.updateInfo('尾-头比较')
       callbacks.updateCompareNodes(oldEndIdx, newStartIdx)
+      await wait()
       _isSameNode = isSameNode(oldEndVNode, newStartVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
@@ -192,25 +220,6 @@ const diff = async (el, oldChildren, newChildren) => {
       // 更新指针
       oldEndVNode = oldChildren[--oldEndIdx]
       newStartVNode = newChildren[++newStartIdx]
-      stop = true
-    }
-    if (!stop) {
-      callbacks.updateInfo('尾-尾比较')
-      callbacks.updateCompareNodes(oldEndIdx, newEndIdx)
-      _isSameNode = isSameNode(oldEndVNode, newEndVNode)
-      if (_isSameNode) {
-        callbacks.updateInfo(
-          'key值相同，可以复用，进行patch打补丁操作。新旧节点位置相同，不需要移动对应的真实DOM节点'
-        )
-      }
-      await wait()
-    }
-    if (!stop && _isSameNode) {
-      // 尾-尾
-      patchVNode(oldEndVNode, newEndVNode)
-      // 更新指针
-      oldEndVNode = oldChildren[--oldEndIdx]
-      newEndVNode = newChildren[--newEndIdx]
       stop = true
     }
     callbacks.updateCompareNodes(-1, -1)

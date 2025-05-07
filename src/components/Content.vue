@@ -1,7 +1,18 @@
 <script setup>
 import { computed, nextTick, ref } from 'vue'
-import { patch, h } from '../doubleEndedDiff/index'
+import { patch, h, resolve, timer } from '../doubleEndedDiff/index'
 import { useStore } from '../store'
+import { example1, example2 } from '../examples'
+
+const oldNodeListWithKey = computed(()=>{
+  const old = JSON.parse(store.oldVNode)
+  return old.map((item,index)=>{
+    return {
+      ...item,
+      displayKey: index
+    }
+  })
+})
 
 const store = useStore()
 // 指针
@@ -57,7 +68,7 @@ const findIndex = (vnode) => {
   return !vnode
     ? -1
     : actNodeList.value.findIndex(item => {
-        return item && item.data.key === vnode.data.key
+        return item && item.displayKey === vnode.displayKey
       })
 }
 
@@ -105,7 +116,8 @@ const handles = {
   insertNode(newVNode, index, inNewVNode) {
     let node = {
       data: newVNode.data,
-      children: newVNode.text
+      children: newVNode.text,
+      displayKey: newVNode.data.displayKey
     }
     let targetIndex = 0
     if (index === -1) {
@@ -167,14 +179,14 @@ const start = () => {
   nextTick(() => {
     showHiddenNodeList.value = true
     isRunning.value = true
-    actNodeList.value = JSON.parse(store.oldVNode)
-    oldVNodeList.value = JSON.parse(store.oldVNode)
+    actNodeList.value = window.structuredClone(oldNodeListWithKey.value)
+    oldVNodeList.value = window.structuredClone(oldNodeListWithKey.value)
     newVNodeList.value = JSON.parse(store.newVNode)
     nextTick(() => {
       let oldVNode = h(
         'div',
         { key: 1 },
-        JSON.parse(store.oldVNode).map((item, index) => {
+        oldNodeListWithKey.value.map((item, index) => {
           let vnode = h(item.tag, item.data, item.children)
           vnode.el = oldNodeList.value[index]
           return vnode
@@ -192,6 +204,29 @@ const start = () => {
     })
   })
 }
+
+function pause() {
+  window.clearTimeout(timer)
+  isRunning.value = false
+}
+
+function resume() {
+  resolve()
+  isRunning.value = true
+}
+
+function selectDemo(index) {
+  switch (index) {
+    case 1:
+      store.oldVNode = example1.old
+      store.newVNode = example1.new
+      break
+    case 2:
+      store.oldVNode = example2.old
+      store.newVNode = example2.new
+      break
+  }
+}
 </script>
 
 <template>
@@ -199,15 +234,27 @@ const start = () => {
     <!-- 工具栏 -->
     <div class="toolbar">
       <div class="left">
-        <div class="btn" @click="start" :class="{ disabled: isRunning }">
+        <div class="btn" @click="start">
           启动
         </div>
         <div class="inputBox">
           <span class="name">速度(单位：ms)：</span>
           <input type="text" v-model="speed" />
         </div>
+        <div class="btn" @click="pause" v-if="isRunning">
+          暂停
+        </div>
+        <div class="btn" v-else @click="resume">
+          继续
+        </div>
       </div>
       <div class="right">
+        <div class="btn"  @click="selectDemo(1)">
+          demo1
+        </div>
+        <div class="btn"  @click="selectDemo(2)">
+          demo2
+        </div>
         <div class="title">双端Diff算法动画演示</div>
       </div>
     </div>
@@ -236,7 +283,7 @@ const start = () => {
                 <div
                   class="nodeWrap"
                   v-for="(item, index) in oldVNodeList"
-                  :key="item ? item.data.key : index"
+                  :key="item ? item.data?.key : index"
                   :class="{
                     current: currentCompareOldNodeIndex === index,
                     delete: currentDeleteNodeIndex === index,
@@ -259,7 +306,7 @@ const start = () => {
                 <div
                   class="nodeWrap"
                   v-for="(item, index) in newVNodeList"
-                  :key="item.data.key"
+                  :key="item.data?.key"
                   :class="{
                     current: currentCompareNewNodeIndex === index,
                     add: currentAddNodeIndex === index,
@@ -298,7 +345,7 @@ const start = () => {
               <div
                 class="nodeWrap"
                 v-for="item in actNodeList"
-                :key="item.data.key"
+                :key="item.displayKey"
               >
                 <div class="node">{{ item.children }}</div>
               </div>
@@ -379,6 +426,7 @@ const start = () => {
       .inputBox {
         height: 30px;
         margin-left: 50px;
+        margin-right: 50px;
 
         input {
           width: 80px;
@@ -393,6 +441,7 @@ const start = () => {
     }
 
     .right {
+      display: flex;
       .title {
         font-size: 20px;
         font-weight: bold;
@@ -510,7 +559,12 @@ const start = () => {
   }
 
   .hide {
-    display: none;
+    // display: none;
+
+    &>div {
+      display: flex;
+      gap: 10px;
+    }
   }
 }
 </style>
