@@ -142,7 +142,7 @@ const diff = async (el, oldChildren, newChildren) => {
       _isSameNode = isSameNode(oldStartVNode, newStartVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
-          'key值相同，可以复用，进行patch打补丁操作。新旧节点位置相同，不需要移动对应的真实DOM节点'
+          '相似vnode节点，可以复用，进行patch打补丁操作。新旧节点位置相同，不需要移动对应的真实DOM节点'
         )
       }
       await wait()
@@ -162,7 +162,7 @@ const diff = async (el, oldChildren, newChildren) => {
       _isSameNode = isSameNode(oldEndVNode, newEndVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
-          'key值相同，可以复用，进行patch打补丁操作。新旧节点位置相同，不需要移动对应的真实DOM节点'
+          '相似vnode节点，可以复用，进行patch打补丁操作。新旧节点位置相同，不需要移动对应的真实DOM节点'
         )
       }
       await wait()
@@ -182,7 +182,7 @@ const diff = async (el, oldChildren, newChildren) => {
       _isSameNode = isSameNode(oldStartVNode, newEndVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
-          'key值相同，可以复用，进行patch打补丁操作。新旧节点位置不同，需要移动对应的真实DOM节点'
+          '相似vnode节点，可以复用，进行patch打补丁操作。新旧节点位置不同，需要移动对应的真实DOM节点'
         )
       }
       await wait()
@@ -190,7 +190,6 @@ const diff = async (el, oldChildren, newChildren) => {
     if (!stop && _isSameNode) {
       // 头-尾
       patchVNode(oldStartVNode, newEndVNode)
-      debugger
       // 把oldStartVNode节点移动到最后
       el.insertBefore(oldStartVNode.el, oldEndVNode.el.nextSibling)
       callbacks.moveNode(oldStartIdx, oldEndIdx + 1)
@@ -206,7 +205,7 @@ const diff = async (el, oldChildren, newChildren) => {
       _isSameNode = isSameNode(oldEndVNode, newStartVNode)
       if (_isSameNode) {
         callbacks.updateInfo(
-          'key值相同，可以复用，进行patch打补丁操作。新旧节点位置不同，需要移动对应的真实DOM节点'
+          '相似vnode节点，可以复用，进行patch打补丁操作。新旧节点位置不同，需要移动对应的真实DOM节点'
         )
       }
       await wait()
@@ -448,7 +447,8 @@ const patchVNode = (oldVNode, newVNode) => {
           el.removeChild(item.el)
         })
       }
-      // 文本内容不相同则更新文本
+        debugger
+        // 文本内容不相同则更新文本
       if (oldVNode.text !== newVNode.text) {
         el.textContent = newVNode.text
       }

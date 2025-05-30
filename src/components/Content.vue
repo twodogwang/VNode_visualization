@@ -2,7 +2,7 @@
 import { computed, nextTick, ref } from 'vue'
 import { patch, h, resolve, timer } from '../doubleEndedDiff/index'
 import { useStore } from '../store'
-import { example1, example2 } from '../examples'
+import { example1, example2, example3 } from '../examples'
 
 const oldNodeListWithKey = computed(()=>{
   const old = JSON.parse(store.oldVNode)
@@ -225,6 +225,10 @@ function selectDemo(index) {
       store.oldVNode = example2.old
       store.newVNode = example2.new
       break
+    case 3:
+      store.oldVNode = example3.old
+      store.newVNode = example3.new
+      break
   }
 }
 </script>
@@ -254,6 +258,9 @@ function selectDemo(index) {
         </div>
         <div class="btn"  @click="selectDemo(2)">
           demo2
+        </div>
+        <div class="btn"  @click="selectDemo(3)">
+          demo3
         </div>
         <div class="title">双端Diff算法动画演示</div>
       </div>
