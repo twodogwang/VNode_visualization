@@ -104,7 +104,11 @@ const handles = {
     let fromIndex = findIndex(oldVNode)
     let toIndex = findIndex(newVNode)
     actNodeList.value[fromIndex] = '#'
-    actNodeList.value.splice(toIndex, 0, oldVNode)
+    if(toIndex !==-1 ){      
+      actNodeList.value.splice(toIndex, 0, oldVNode)
+    }else {
+      actNodeList.value.push(oldVNode)
+    }
     actNodeList.value = actNodeList.value.filter(item => {
       return item !== '#'
     })
@@ -566,7 +570,7 @@ function selectDemo(index) {
   }
 
   .hide {
-    // display: none;
+    display: none;
 
     &>div {
       display: flex;

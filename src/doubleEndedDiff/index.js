@@ -447,7 +447,6 @@ const patchVNode = (oldVNode, newVNode) => {
           el.removeChild(item.el)
         })
       }
-        debugger
         // 文本内容不相同则更新文本
       if (oldVNode.text !== newVNode.text) {
         el.textContent = newVNode.text
