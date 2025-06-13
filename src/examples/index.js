@@ -11,14 +11,6 @@ export const example1 = {
       children: 'el-form-item-1'
     },
     {
-      tag: 'undefined',
-      isComment: false,
-      text: ' ',
-      data: {
-        key: 'undefined'
-      }
-    },
-    {
       tag: 'div',
       isComment: false,
       text: 'undefined',
@@ -29,14 +21,6 @@ export const example1 = {
       children: 'el-form-item-2'
     },
     {
-      tag: 'undefined',
-      isComment: false,
-      text: ' ',
-      data: {
-        key: 'undefined'
-      }
-    },
-    {
       tag: 'div',
       isComment: false,
       text: 'undefined',
@@ -45,14 +29,6 @@ export const example1 = {
         staticClass: 'w-40%'
       },
       children: 'el-form-item-3'
-    },
-    {
-      tag: 'undefined',
-      isComment: false,
-      text: ' ',
-      data: {
-        key: 'undefined'
-      }
     },
     {
       tag: 'undefined',
@@ -76,24 +52,8 @@ export const example1 = {
     },
     {
       tag: 'undefined',
-      isComment: false,
-      text: ' ',
-      data: {
-        key: 'undefined'
-      }
-    },
-    {
-      tag: 'undefined',
       isComment: true,
       text: '',
-      data: {
-        key: 'undefined'
-      }
-    },
-    {
-      tag: 'undefined',
-      isComment: false,
-      text: ' ',
       data: {
         key: 'undefined'
       }
@@ -107,15 +67,6 @@ export const example1 = {
         staticClass: 'w-20%'
       },
       children: 'el-form-item'
-    },
-    {
-      tag: 'undefined',
-      isComment: false,
-      key: 'undefined',
-      text: ' ',
-      data: {
-        key: 'undefined'
-      }
     },
     {
       tag: 'div',
