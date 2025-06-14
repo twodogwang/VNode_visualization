@@ -5,7 +5,7 @@ import Content from './components/Content.vue'
 
 <template>
   <div class="container">
-    <Sidebar></Sidebar>
+    <!-- <Sidebar></Sidebar> -->
     <Content></Content>
   </div>
 </template>

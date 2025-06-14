@@ -250,13 +250,13 @@ export const example3 = {
     {
       tag: 'vue-component-5-ElButton',
       isComment: false,
-      text: 'undefined',
+      text: 'ElButton',
       data: { key: 'undefined', on: 'undefined', hook: {} }
     },
     {
       tag: 'vue-component-5-ElButton',
       isComment: false,
-      text: 'undefined',
+      text: 'ElButton',
       data: { key: 'undefined', on: 'undefined', hook: {} }
     }
   ]),
@@ -288,13 +288,13 @@ export const example3 = {
     {
       tag: 'vue-component-5-ElButton',
       isComment: false,
-      text: 'undefined',
+      text: 'v',
       data: { key: 'undefined', on: 'undefined', hook: {} }
     },
     {
       tag: 'vue-component-5-ElButton',
       isComment: false,
-      text: 'undefined',
+      text: 'ElButton',
       data: { key: 'undefined', on: 'undefined', hook: {} }
     }
   ])

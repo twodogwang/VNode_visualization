@@ -4,9 +4,19 @@ import { patch, h, resolve, timer } from '../doubleEndedDiff/index'
 import { useStore } from '../store'
 import { example1, example2, example3 } from '../examples'
 
-const oldNodeListWithKey = computed(()=>{
+const oldNodeListWithKey = computed(() => {
   const old = JSON.parse(store.oldVNode)
-  return old.map((item,index)=>{
+  return old.map((item, index) => {
+    return {
+      ...item,
+      displayKey: index
+    }
+  })
+})
+
+const newNodeListWithKey = computed(() => {
+  const node = JSON.parse(store.newVNode)
+  return node.map((item, index) => {
     return {
       ...item,
       displayKey: index
@@ -68,8 +78,8 @@ const findIndex = (vnode) => {
   return !vnode
     ? -1
     : actNodeList.value.findIndex(item => {
-        return item && item.displayKey === vnode.displayKey
-      })
+      return item && item.displayKey === vnode.displayKey
+    })
 }
 
 // 操作
@@ -89,7 +99,7 @@ const handles = {
     newPointerList.value = [
       {
         name: 'newStartIdx',
-        value: newStartIdx 
+        value: newStartIdx
       },
       {
         name: 'newEndIdx',
@@ -98,15 +108,15 @@ const handles = {
     ]
   },
   // 移动节点
-  moveNode(oldIndex, newIndex, empty = false) {
-    let oldVNode = oldVNodeList.value[oldIndex]
-    let newVNode = oldVNodeList.value[newIndex]
+  moveNode(oldVNode, newVNode, empty = false) {
+    // let oldVNode = oldVNodeList.value[oldIndex]
+    // let newVNode = oldVNodeList.value[newIndex]
     let fromIndex = findIndex(oldVNode)
     let toIndex = findIndex(newVNode)
     actNodeList.value[fromIndex] = '#'
-    if(toIndex !==-1 ){      
-      actNodeList.value.splice(toIndex, 0, oldVNode)
-    }else {
+    if (toIndex !== -1) {
+      actNodeList.value.splice(toIndex + 1, 0, oldVNode)
+    } else {
       actNodeList.value.push(oldVNode)
     }
     actNodeList.value = actNodeList.value.filter(item => {
@@ -185,13 +195,13 @@ const start = () => {
     isRunning.value = true
     actNodeList.value = window.structuredClone(oldNodeListWithKey.value)
     oldVNodeList.value = window.structuredClone(oldNodeListWithKey.value)
-    newVNodeList.value = JSON.parse(store.newVNode)
+    newVNodeList.value = window.structuredClone(newNodeListWithKey.value)
     nextTick(() => {
       let oldVNode = h(
         'div',
         { key: 1 },
         oldNodeListWithKey.value.map((item, index) => {
-          let vnode = h(item.tag, item.data, item.children)
+          let vnode = h(item.tag, item.data, item.children, item.displayKey)
           vnode.el = oldNodeList.value[index]
           return vnode
         })
@@ -200,8 +210,8 @@ const start = () => {
       let newVNode = h(
         'div',
         { key: 1 },
-        JSON.parse(store.newVNode).map(item => {
-          return h(item.tag, item.data, item.children)
+        newNodeListWithKey.value.map(item => {
+          return h(item.tag, item.data, item.children, item.displayKey)
         })
       )
       patch(oldVNode, newVNode, handles, speed.value)
@@ -257,13 +267,13 @@ function selectDemo(index) {
         </div>
       </div>
       <div class="right">
-        <div class="btn"  @click="selectDemo(1)">
+        <div class="btn" @click="selectDemo(1)">
           demo1
         </div>
-        <div class="btn"  @click="selectDemo(2)">
+        <div class="btn" @click="selectDemo(2)">
           demo2
         </div>
-        <div class="btn"  @click="selectDemo(3)">
+        <div class="btn" @click="selectDemo(3)">
           demo3
         </div>
         <div class="title">双端Diff算法动画演示</div>
@@ -274,12 +284,8 @@ function selectDemo(index) {
       <div class="playground">
         <!-- 指针 -->
         <div class="pointer">
-          <div
-            class="pointerItem"
-            v-for="item in oldPointerList"
-            :key="item.name"
-            :style="{ left: item.value * 120 + 'px' }"
-          >
+          <div class="pointerItem" v-for="item in oldPointerList" :key="item.name"
+            :style="{ left: item.value * 120 + 'px' }">
             <div class="pointerItemName">{{ item.name }}</div>
             <div class="pointerItemValue">{{ item.value }}</div>
             <img src="../assets/箭头_向下.svg" alt="" />
@@ -291,19 +297,14 @@ function selectDemo(index) {
             <div class="name" v-if="oldVNodeList.length > 0">旧的VNode列表</div>
             <div class="nodes">
               <TransitionGroup name="list">
-                <div
-                  class="nodeWrap"
-                  v-for="(item, index) in oldVNodeList"
-                  :key="item ? item.data?.key : index"
-                  :class="{
-                    current: currentCompareOldNodeIndex === index,
-                    delete: currentDeleteNodeIndex === index,
-                    end:
-                      oldPointerList.length > 0 &&
-                      (index < oldPointerList[0].value ||
-                        index > oldPointerList[oldPointerList.length - 1].value)
-                  }"
-                >
+                <div class="nodeWrap" v-for="(item, index) in oldVNodeList" :key="item ? item.data?.key : index" :class="{
+                  current: currentCompareOldNodeIndex === index,
+                  delete: currentDeleteNodeIndex === index,
+                  end:
+                    oldPointerList.length > 0 &&
+                    (index < oldPointerList[0].value ||
+                      index > oldPointerList[oldPointerList.length - 1].value)
+                }">
                   <div class="node">{{ item ? item.children : '空' }}</div>
                 </div>
               </TransitionGroup>
@@ -314,19 +315,14 @@ function selectDemo(index) {
             <div class="name" v-if="newVNodeList.length > 0">新的VNode列表</div>
             <div class="nodes">
               <TransitionGroup name="list">
-                <div
-                  class="nodeWrap"
-                  v-for="(item, index) in newVNodeList"
-                  :key="item.data?.key"
-                  :class="{
-                    current: currentCompareNewNodeIndex === index,
-                    add: currentAddNodeIndex === index,
-                    end:
-                      newPointerList.length > 0 &&
-                      (index < newPointerList[0].value ||
-                        index > newPointerList[newPointerList.length - 1].value)
-                  }"
-                >
+                <div class="nodeWrap" v-for="(item, index) in newVNodeList" :key="item.data?.key" :class="{
+                  current: currentCompareNewNodeIndex === index,
+                  add: currentAddNodeIndex === index,
+                  end:
+                    newPointerList.length > 0 &&
+                    (index < newPointerList[0].value ||
+                      index > newPointerList[newPointerList.length - 1].value)
+                }">
                   <div class="node">{{ item.children }}</div>
                 </div>
               </TransitionGroup>
@@ -337,12 +333,8 @@ function selectDemo(index) {
         </div>
         <!-- 指针 -->
         <div class="pointer">
-          <div
-            class="pointerItem"
-            v-for="item in newPointerList"
-            :key="item.name"
-            :style="{ left: item.value * 120 + 'px' }"
-          >
+          <div class="pointerItem" v-for="item in newPointerList" :key="item.name"
+            :style="{ left: item.value * 120 + 'px' }">
             <img src="../assets/箭头_向上.svg" alt="" />
             <div class="pointerItemValue">{{ item.value }}</div>
             <div class="pointerItemName">{{ item.name }}</div>
@@ -353,12 +345,8 @@ function selectDemo(index) {
           <div class="name">真实DOM列表</div>
           <div class="nodes">
             <TransitionGroup name="list">
-              <div
-                class="nodeWrap"
-                v-for="item in actNodeList"
-                :key="item.displayKey"
-              >
-                <div class="node">{{ item.children }}</div>
+              <div class="nodeWrap" v-for="item in actNodeList" :key="item.displayKey">
+                <div class="node">{{ item.children ?? item.text }}</div>
               </div>
             </TransitionGroup>
           </div>
@@ -366,11 +354,7 @@ function selectDemo(index) {
         <!-- 隐藏 -->
         <div class="hide" v-if="showHiddenNodeList">
           <div class="nodes" ref="oldNode">
-            <div
-              v-for="(item, index) in _oldVNodeList"
-              :key="index"
-              ref="oldNodeList"
-            >
+            <div v-for="(item, index) in _oldVNodeList" :key="index" ref="oldNodeList">
               {{ item.children }}
             </div>
           </div>
@@ -386,11 +370,13 @@ function selectDemo(index) {
 .list-leave-active {
   transition: all 0.5s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
   transform: translateX(30px);
 }
+
 .list-leave-active {
   position: absolute;
 }
@@ -453,6 +439,7 @@ function selectDemo(index) {
 
     .right {
       display: flex;
+
       .title {
         font-size: 20px;
         font-weight: bold;
@@ -483,8 +470,7 @@ function selectDemo(index) {
           display: flex;
           flex-direction: column;
 
-          .pointerItemName {
-          }
+          .pointerItemName {}
 
           img {
             width: 50px;

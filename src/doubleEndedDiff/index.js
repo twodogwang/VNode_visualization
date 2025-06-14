@@ -28,7 +28,7 @@ const wait = t => new Promise(res => {
  * @Date: 2021-06-28 14:05:31
  * @Desc: 创建vNode对象
  */
-export const h = (tag, data = {}, children) => {
+export const h = (tag, data = {}, children,displayKey) => {
   let text = ''
   let el
   let key
@@ -48,7 +48,8 @@ export const h = (tag, data = {}, children) => {
     text, // 文本节点的文本
     el, // 真实dom
     key,
-    data
+    data,
+    displayKey
   }
 }
 
@@ -192,7 +193,7 @@ const diff = async (el, oldChildren, newChildren) => {
       patchVNode(oldStartVNode, newEndVNode)
       // 把oldStartVNode节点移动到最后
       el.insertBefore(oldStartVNode.el, oldEndVNode.el.nextSibling)
-      callbacks.moveNode(oldStartIdx, oldEndIdx + 1)
+      callbacks.moveNode(oldStartVNode, oldEndVNode)
       // 更新指针
       oldStartVNode = oldChildren[++oldStartIdx]
       newEndVNode = newChildren[--newEndIdx]
@@ -215,7 +216,7 @@ const diff = async (el, oldChildren, newChildren) => {
       patchVNode(oldEndVNode, newStartVNode)
       // 把oldEndVNode节点移动到oldStartVNode前
       el.insertBefore(oldEndVNode.el, oldStartVNode.el)
-      callbacks.moveNode(oldEndIdx, oldStartIdx)
+      callbacks.moveNode(oldEndVNode, oldStartVNode)
       // 更新指针
       oldEndVNode = oldChildren[--oldEndIdx]
       newStartVNode = newChildren[++newStartIdx]
@@ -247,7 +248,7 @@ const diff = async (el, oldChildren, newChildren) => {
         let oldVNode = oldChildren[findIndex]
         patchVNode(oldVNode, newStartVNode)
         el.insertBefore(oldVNode.el, oldStartVNode.el)
-        callbacks.moveNode(findIndex, oldStartIdx, true)
+        callbacks.moveNode(oldVNode, oldStartVNode, true)
         oldChildren[findIndex] = null
         await wait()
       }
